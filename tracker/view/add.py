@@ -139,11 +139,11 @@ def add_cve():
 def add_group():
     form = GroupForm()
     if not form.validate_on_submit():
-        return render_template('form/group.html',
-                               title='Add AVG',
-                               form=form,
-                               CVEGroup=CVEGroup)
-
+        # return render_template('form/group.html',
+        #                        title='Add AVG',
+        #                        form=form,
+        #                        CVEGroup=CVEGroup)
+        pass
     issue_ids = multiline_to_list(form.cve.data)
     issue_ids = set(filter(lambda s: s.startswith('CVE-'), issue_ids))
 

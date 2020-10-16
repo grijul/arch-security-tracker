@@ -25,6 +25,7 @@ from config import SQLITE_SYNCHRONOUS
 from config import SQLITE_TEMP_STORE
 from config import atom_feeds
 
+from datetime import datetime
 
 @event.listens_for(Engine, 'connect')
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -107,6 +108,7 @@ def create_app(script_info=None):
 
     app.url_map.converters['regex'] = RegexConverter
     app.jinja_env.globals['ATOM_FEEDS'] = atom_feeds
+    app.jinja_env.globals['NOW'] = datetime.utcnow()
 
     from tracker.view.error import error_handlers
     for error_handler in error_handlers:

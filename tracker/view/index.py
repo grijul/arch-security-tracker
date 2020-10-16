@@ -19,24 +19,30 @@ from tracker.util import json_response
 
 
 def get_index_data(only_vulnerable=False, only_in_repo=True):
-    select = (db.session.query(CVEGroup, CVE, func.group_concat(CVEGroupPackage.pkgname, ' '),
+    select = (db.session.query(CVEGroup, CVE, CVE.description, func.group_concat(CVEGroupPackage.pkgname, ' '),
                                func.group_concat(Advisory.id, ' '))
                         .join(CVEGroupEntry, CVEGroup.issues)
                         .join(CVE, CVEGroupEntry.cve)
                         .join(CVEGroupPackage, CVEGroup.packages)
                         .outerjoin(Advisory, and_(Advisory.group_package_id == CVEGroupPackage.id,
                                                   Advisory.publication == Publication.published)))
+
+    
     if only_vulnerable:
         select = select.filter(CVEGroup.status.in_([Status.unknown, Status.vulnerable, Status.testing]))
     if only_in_repo:
         select = select.join(Package, Package.name == CVEGroupPackage.pkgname)
 
+    entries = select.all()
+
+    print(entries)
+
     entries = (select.group_by(CVEGroup.id).group_by(CVE.id)
                      .order_by(CVEGroup.status.desc())
                      .order_by(CVEGroup.changed.desc())).all()
-
+    
     groups = defaultdict(defaultdict)
-    for group, cve, pkgs, advisories in entries:
+    for group, cve, cve_desc, pkgs, advisories in entries:
         group_entry = groups.setdefault(group.id, {})
         group_entry['group'] = group
         group_entry['pkgs'] = list(set(pkgs.split(' ')))
@@ -50,6 +56,7 @@ def get_index_data(only_vulnerable=False, only_in_repo=True):
     groups = sorted(groups, key=lambda item: item['group'].changed, reverse=True)
     groups = sorted(groups, key=lambda item: item['group'].severity)
     groups = sorted(groups, key=lambda item: item['group'].status)
+    print(groups)
     return groups
 
 
@@ -82,7 +89,6 @@ def index_json(only_vulnerable=False, path=None):
     for entry in entries:
         group = entry['group']
         types = list(set([cve.issue_type for cve in entry['issues']]))
-
         json_entry = OrderedDict()
         json_entry['name'] = group.name
         json_entry['packages'] = entry['pkgs']

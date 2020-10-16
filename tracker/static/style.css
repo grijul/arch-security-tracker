@@ -116,13 +116,6 @@ select {
 	text-indent: -9999px !important;
 }
 
-#page_footer {
-	font-size: 0.9em;
-	margin: 0 auto;
-	text-align: center;
-	width: 95%;
-}
-
 h1 {
 	font-size: 2em;
 	margin: 1.0em 0;
@@ -658,4 +651,17 @@ table.diff tr td:first-child {
 
 .pagination {
 	margin: 1em 0;
+}
+
+#page_footer {
+	clear: both;
+    margin: 2em 0 1em;
+}
+
+.page_footer_paragraph {
+	margin: 0;
+    text-align: center;
+	font-size: 0.82em;
+	letter-spacing: 0;
+	line-height: 1.4em;
 }
